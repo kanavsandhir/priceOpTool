@@ -558,16 +558,6 @@ body {
   background: linear-gradient(135deg, #2563eb, #22c55e);
 }
 
-.filter-icon {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #9ca3af;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  margin-right: 0.25rem;
-  transform: translateY(1px);
-}
-
 .chip-disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -733,6 +723,30 @@ body {
 
 .forecast-highlight {
   background: #22d3ee20;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.login-form label span {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.2rem;
+}
+
+.login-form input {
+  width: 100%;
+  border-radius: 0.45rem;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.55rem;
 }
 
 

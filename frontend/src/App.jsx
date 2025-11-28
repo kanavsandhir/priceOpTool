@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getProducts, optimizeProduct } from "./services/api";
+import { getProducts, optimizeProduct, login } from "./services/api";
 import LandingPage from "./components/LandingPage";
 import CreateManagePage from "./components/CreateManagePage";
 import PricingOptimizationPage from "./components/PricingOptimizationPage";
+import LoginPage from "./components/LoginPage";
 
 function App() {
   const [view, setView] = useState("home"); // 'home' | 'manage' | 'optimize'
@@ -10,6 +11,7 @@ function App() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
 
   const loadProducts = async () => {
     try {
@@ -28,10 +30,12 @@ function App() {
   };
 
   useEffect(() => {
-    // Load products once when the app mounts so both pages can use them.
-    loadProducts();
+    if (user) {
+      // Loads products once after successful login.
+      loadProducts();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const handleOptimize = async (product) => {
     try {
@@ -56,6 +60,18 @@ function App() {
     }
   };
 
+  const handleLogin = async (email, password) => {
+    const res = await login(email, password); // { user_id, user_name, email, user_role }
+    setUser(res);
+  };
+
+  const canManage =
+    user && (user.user_role === 1 || user.user_role === 2);
+
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   if (view === "home") {
     return <LandingPage onSelectView={setView} />;
   }
@@ -66,6 +82,7 @@ function App() {
         products={products}
         loading={loading}
         error={error}
+        canManage={canManage}
         onBack={() => setView("home")}
         onSelectProduct={setSelected}
         onProductCreated={(p) => setProducts((prev) => [...prev, p])}

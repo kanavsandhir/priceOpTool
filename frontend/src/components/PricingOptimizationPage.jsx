@@ -12,6 +12,8 @@ function PricingOptimizationPage({
   onOptimize
 }) {
   const [withForecast, setWithForecast] = useState(true);
+  const [searchDraft, setSearchDraft] = useState("");
+  const [categoryDraft, setCategoryDraft] = useState("All");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
@@ -75,15 +77,15 @@ function PricingOptimizationPage({
               className="search-input"
               type="text"
               placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchDraft}
+              onChange={(e) => setSearchDraft(e.target.value)}
             />
           </div>
 
           <select
             className="category-select"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={categoryDraft}
+            onChange={(e) => setCategoryDraft(e.target.value)}
           >
             {categories.map((c) => (
               <option key={c} value={c}>
@@ -92,7 +94,14 @@ function PricingOptimizationPage({
             ))}
           </select>
 
-          <button type="button" className="filter-btn">
+          <button
+            type="button"
+            className="filter-btn"
+            onClick={() => {
+              setCategory(categoryDraft);
+              setSearch(searchDraft);
+            }}
+          >
             Filter
           </button>
         </div>
@@ -106,18 +115,10 @@ function PricingOptimizationPage({
             products={filteredProducts}
             selectedId={selected?.product_id}
             onSelect={onSelectProduct}
+            showForecast={withForecast}
           />
         </section>
       </div>
-
-      <footer className="page-footer">
-        <button type="button" className="secondary-btn">
-          Cancel
-        </button>
-        <button type="button" className="primary-btn primary-btn-small">
-          Save
-        </button>
-      </footer>
     </div>
   );
 }

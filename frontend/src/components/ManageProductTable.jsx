@@ -5,7 +5,9 @@ function ManageProductTable({
   onSelectionChange,
   onView,
   onEdit,
-  onDelete
+  onDelete,
+  showForecast,
+  canManage,
 }) {
   const [checked, setChecked] = useState(() => new Set());
 
@@ -51,6 +53,7 @@ function ManageProductTable({
             <th>Description</th>
             <th>Available Stock</th>
             <th>Units Sold</th>
+            {showForecast && <th>Demand Forecast</th>}
             <th>Action</th>
           </tr>
         </thead>
@@ -71,6 +74,9 @@ function ManageProductTable({
               <td>{p.description}</td>
               <td>{p.stock_available}</td>
               <td>{p.units_sold}</td>
+              {showForecast && (
+                <td>{p.demand_forecast ?? p.units_sold ?? 0}</td>
+              )}
               <td className="action-col">
                 <button
                   type="button"
@@ -82,16 +88,24 @@ function ManageProductTable({
                 <span className="action-sep">|</span>
                 <button
                   type="button"
-                  className="link-quiet"
-                  onClick={() => onEdit?.(p)}
+                  className={`link-quiet ${!canManage ? "link-quiet-disabled" : ""}`}
+                  disabled={!canManage}
+                  onClick={() => {
+                    if (!canManage) return;
+                    onEdit?.(p);
+                  }}
                 >
                   Edit
                 </button>
                 <span className="action-sep">|</span>
                 <button
                   type="button"
-                  className="link-quiet"
-                  onClick={() => onDelete?.(p)}
+                  className={`link-quiet ${!canManage ? "link-quiet-disabled" : ""}`}
+                  disabled={!canManage}
+                  onClick={() => {
+                    if (!canManage) return;
+                    onDelete?.(p);
+                  }}
                 >
                   Delete
                 </button>

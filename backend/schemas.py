@@ -50,3 +50,21 @@ class OptimizeResponse(BaseModel):
     optimized_price: float
 
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    user_id: int
+    user_name: str
+    email: str
+    user_role: int
+
+
+class RegisterRequest(BaseModel):
+    user_name: str
+    email: str
+    password: str
+
+

@@ -3,6 +3,7 @@ from typing import List
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
@@ -33,6 +34,81 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.post("/api/login", response_model=schemas.LoginResponse)
+def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
+    """
+    Simple login endpoint that validates email + password against the
+    existing public.\"user\" table. No tokens or roles – just a basic
+    credential check.
+    """
+    sql = text(
+        """
+        SELECT user_id, user_name, password, user_role, email
+        FROM "user"
+        WHERE email = :email
+        """
+    )
+    row = db.execute(sql, {"email": creds.email}).first()
+
+    if not row:
+        raise HTTPException(
+            status_code=401, detail="Invalid email or password"
+        )
+
+    user_id, user_name, stored_password, user_role, email = row
+
+    if creds.password != stored_password:
+        raise HTTPException(
+            status_code=401, detail="Invalid email or password"
+        )
+
+    return schemas.LoginResponse(
+        user_id=user_id,
+        user_name=user_name,
+        email=email,
+        user_role=user_role,
+    )
+
+
+@app.post("/api/register")
+def register_user(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
+    """
+    Simple registration endpoint.
+    Inserts a new row into public."user" with user_name, email, password.
+    user_role is left NULL / default so admin can assign it later in pgAdmin.
+    """
+    # Check if email already exists
+    check_sql = text(
+        'SELECT user_id FROM "user" WHERE email = :email'
+    )
+    existing = db.execute(check_sql, {"email": payload.email}).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    insert_sql = text(
+        """
+        INSERT INTO "user" (user_name, password, email)
+        VALUES (:user_name, :password, :email)
+        RETURNING user_id, user_name, email
+        """
+    )
+    row = db.execute(
+        insert_sql,
+        {
+            "user_name": payload.user_name,
+            "password": payload.password,
+            "email": payload.email,
+        },
+    ).first()
+    db.commit()
+
+    return {
+        "user_id": row[0],
+        "user_name": row[1],
+        "email": row[2],
+    }
+
+
 @app.get("/api/products", response_model=List[schemas.ProductRead])
 def list_products(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
@@ -50,7 +126,8 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/products", response_model=schemas.ProductRead)
 def create_product(
-    product: schemas.ProductCreate, db: Session = Depends(get_db)
+    product: schemas.ProductCreate,
+    db: Session = Depends(get_db),
 ):
     if product.product_id is not None:
         existing = crud.get_product_by_product_id(db, product.product_id)
@@ -87,7 +164,8 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     response_model=schemas.OptimizeResponse,
 )
 def optimize_product_price(
-    product_id: int, db: Session = Depends(get_db)
+    product_id: int,
+    db: Session = Depends(get_db),
 ):
     db_product = crud.get_product_by_id(db, product_id)
     if not db_product:

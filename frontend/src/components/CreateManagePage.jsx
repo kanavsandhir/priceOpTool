@@ -8,6 +8,7 @@ function CreateManagePage({
   products,
   loading,
   error,
+  canManage,
   onBack,
   onSelectProduct,
   onProductCreated,
@@ -15,6 +16,8 @@ function CreateManagePage({
   onProductDeleted
 }) {
   const [withForecast, setWithForecast] = useState(true);
+  const [searchDraft, setSearchDraft] = useState("");
+  const [categoryDraft, setCategoryDraft] = useState("All");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -86,15 +89,15 @@ function CreateManagePage({
               className="search-input"
               type="text"
               placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchDraft}
+              onChange={(e) => setSearchDraft(e.target.value)}
             />
           </div>
 
           <select
             className="category-select"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={categoryDraft}
+            onChange={(e) => setCategoryDraft(e.target.value)}
           >
             {categories.map((c) => (
               <option key={c} value={c}>
@@ -103,8 +106,14 @@ function CreateManagePage({
             ))}
           </select>
 
-          <button type="button" className="filter-btn">
-            <span className="filter-icon" />
+          <button
+            type="button"
+            className="filter-btn"
+            onClick={() => {
+              setCategory(categoryDraft);
+              setSearch(searchDraft);
+            }}
+          >
             Filter
           </button>
 
@@ -112,8 +121,14 @@ function CreateManagePage({
 
           <button
             type="button"
-            className="primary-chip-btn"
-            onClick={() => setShowModal(true)}
+            className={`primary-chip-btn ${!canManage ? "chip-disabled" : ""}`}
+            disabled={!canManage}
+            onClick={() => {
+              if (!canManage) return;
+              setModalMode("create");
+              setActiveProduct(null);
+              setShowModal(true);
+            }}
           >
             + Add New Products
           </button>
@@ -139,6 +154,8 @@ function CreateManagePage({
         >
           <ManageProductTable
             products={filteredProducts}
+            showForecast={withForecast}
+            canManage={canManage}
             onSelectionChange={setSelectedIds}
             onView={(p) => {
               setModalMode("view");
@@ -168,15 +185,6 @@ function CreateManagePage({
           />
         </section>
       </div>
-
-      <footer className="page-footer">
-        <button type="button" className="secondary-btn">
-          Cancel
-        </button>
-        <button type="button" className="primary-btn primary-btn-small">
-          Save
-        </button>
-      </footer>
 
       <AddProductModal
         open={showModal}

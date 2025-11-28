@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text
+from sqlalchemy import Column, Float, Integer, String, Text
 
 from .database import Base
 
@@ -6,7 +6,6 @@ from .database import Base
 class Product(Base):
     __tablename__ = "products"
 
-    # Single primary key column – auto-incrementing product_id
     product_id = Column(
         Integer, primary_key=True, index=True, autoincrement=True
     )
@@ -20,5 +19,4 @@ class Product(Base):
     customer_rating = Column(Float, nullable=True)
     demand_forecast = Column(Float, nullable=True)
     optimized_price = Column(Float, nullable=True)
-
 

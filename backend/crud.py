@@ -20,7 +20,6 @@ def get_product_by_id(db: Session, product_id: int) -> Optional[models.Product]:
 
 
 def get_product_by_product_id(db: Session, product_id: int) -> Optional[models.Product]:
-    # Backwards-compatible helper – kept for older call sites.
     return get_product_by_id(db, product_id)
 
 

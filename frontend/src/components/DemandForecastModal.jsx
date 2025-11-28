@@ -4,7 +4,8 @@ function DemandForecastModal({ open, products, onClose }) {
   if (!open) return null;
 
   const chartData = useMemo(() => {
-    if (!products || products.length === 0) return { pointsPrice: [], pointsDemand: [] };
+    if (!products || products.length === 0)
+      return { pointsPrice: [], pointsDemand: [], maxPrice: 1 };
 
     const maxPrice = Math.max(...products.map((p) => p.selling_price || 0), 1);
     const rawDemand = products.map(
@@ -34,10 +35,16 @@ function DemandForecastModal({ open, products, onClose }) {
       y: scaleY((d / maxDemand) * maxPrice, maxPrice),
     }));
 
-    return { pointsPrice, pointsDemand, width, height, padding };
+    return { pointsPrice, pointsDemand, width, height, padding, maxPrice };
   }, [products]);
 
-  const { pointsPrice, pointsDemand, width = 800, height = 220 } = chartData;
+  const {
+    pointsPrice,
+    pointsDemand,
+    width = 800,
+    height = 220,
+    maxPrice = 1,
+  } = chartData;
 
   const linePath = (points) =>
     points
@@ -83,6 +90,34 @@ function DemandForecastModal({ open, products, onClose }) {
               strokeWidth="1"
             />
 
+            {/* Y-axis ticks and labels (normalized price range) */}
+            {Array.from({ length: 5 }).map((_, idx) => {
+              const value = (maxPrice / 4) * idx;
+              const y =
+                height - 30 - ((height - 50) * idx) / 4; // fits between top/bottom axes
+              return (
+                <g key={idx}>
+                  <line
+                    x1="37"
+                    y1={y}
+                    x2="40"
+                    y2={y}
+                    stroke="#4b5563"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x="32"
+                    y={y + 3}
+                    textAnchor="end"
+                    fontSize="9"
+                    fill="#9ca3af"
+                  >
+                    {value.toFixed(0)}
+                  </text>
+                </g>
+              );
+            })}
+
             {/* Price line (neon green/blue) */}
             {pointsPrice.length > 1 && (
               <path
@@ -125,12 +160,12 @@ function DemandForecastModal({ open, products, onClose }) {
             {/* Y-axis label */}
             <text
               x="14"
-              y="24"
+              y="9"
               textAnchor="start"
               fontSize="10"
               fill="#9ca3af"
             >
-              Price (normalized)
+              Price
             </text>
           </svg>
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-function ProductTable({ products, selectedId, onSelect }) {
+function ProductTable({ products, selectedId, onSelect, showForecast }) {
   return (
     <div className="table-wrapper">
       <table className="product-table">
@@ -12,6 +12,7 @@ function ProductTable({ products, selectedId, onSelect }) {
             <th className="price-col">Cost Price</th>
             <th className="price-col">Selling Price</th>
             <th className="price-col">Optimized Price</th>
+            {showForecast && <th className="price-col">Demand Forecast</th>}
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,11 @@ function ProductTable({ products, selectedId, onSelect }) {
                   ? `$${p.optimized_price.toFixed(2)}`
                   : "-"}
               </td>
+              {showForecast && (
+                <td className="price-col">
+                  {p.demand_forecast ?? p.units_sold ?? 0}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
