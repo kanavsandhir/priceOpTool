@@ -184,3 +184,4 @@ function DemandForecastModal({ open, products, onClose }) {
 export default DemandForecastModal;
 
 
+
