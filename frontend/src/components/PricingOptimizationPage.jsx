@@ -8,6 +8,7 @@ function PricingOptimizationPage({
   loading,
   error,
   onBack,
+  onLogout,
   onSelectProduct,
   onOptimize
 }) {
@@ -51,6 +52,13 @@ function PricingOptimizationPage({
     <div className="page-root">
       <header className="page-header">
         <div className="app-title-neon">Price Optimization Tool</div>
+        <button
+          type="button"
+          className="logout-icon-btn"
+          onClick={onLogout}
+        >
+          Logout
+        </button>
       </header>
 
       <div className="toolbar-container">
@@ -78,7 +86,12 @@ function PricingOptimizationPage({
               type="text"
               placeholder="Search"
               value={searchDraft}
-              onChange={(e) => setSearchDraft(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchDraft(value);
+                // Search should work standalone without pressing Filter
+                setSearch(value);
+              }}
             />
           </div>
 
@@ -98,8 +111,8 @@ function PricingOptimizationPage({
             type="button"
             className="filter-btn"
             onClick={() => {
+              // Dropdown filter should apply only when Filter is pressed
               setCategory(categoryDraft);
-              setSearch(searchDraft);
             }}
           >
             Filter

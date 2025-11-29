@@ -25,16 +25,15 @@ def get_product_by_product_id(db: Session, product_id: int) -> Optional[models.P
 
 def create_product(db: Session, product: schemas.ProductCreate) -> models.Product:
     data = product.dict(exclude_unset=True)
-    # If product_id is None, let PostgreSQL auto-generate it.
+    # If product_id is None auto-generate it.
     if data.get("product_id") is None:
         data.pop("product_id", None)
     db_product = models.Product(**data)
 
-    # If demand_forecast is not provided, estimate it.
     if db_product.demand_forecast is None:
         db_product.demand_forecast = estimate_demand_forecast(db_product)
 
-    # Compute an initial optimized_price for this product.
+    # optimized_price call
     db_product.optimized_price = predict_price(db_product)
 
     db.add(db_product)
@@ -69,41 +68,41 @@ def delete_product(db: Session, db_product: models.Product) -> None:
     db.commit()
 
 
-def upsert_product_from_row(db: Session, row: dict) -> models.Product:
-    """
-    Upsert helper used during CSV ingestion.
-    `row` is expected to use the CSV column names.
-    """
-    product_id = int(row["product_id"])
-    existing = get_product_by_product_id(db, product_id)
+# def upsert_product_from_row(db: Session, row: dict) -> models.Product:
+#     """
+#     Upsert helper used during CSV ingestion.
+#     `row` is expected to use the CSV column names.
+#     """
+#     product_id = int(row["product_id"])
+#     existing = get_product_by_product_id(db, product_id)
 
-    payload = schemas.ProductCreate(
-        product_id=product_id,
-        name=row["name"],
-        description=row.get("description"),
-        cost_price=float(row["cost_price"]),
-        selling_price=float(row["selling_price"]),
-        category=row.get("category"),
-        stock_available=int(row["stock_available"]),
-        units_sold=int(row["units_sold"]),
-        customer_rating=float(row["customer_rating"])
-        if row.get("customer_rating")
-        else None,
-        demand_forecast=float(row["demand_forecast"])
-        if row.get("demand_forecast")
-        else None,
-        optimized_price=float(row["optimized_price"])
-        if row.get("optimized_price")
-        else None,
-    )
+#     payload = schemas.ProductCreate(
+#         product_id=product_id,
+#         name=row["name"],
+#         description=row.get("description"),
+#         cost_price=float(row["cost_price"]),
+#         selling_price=float(row["selling_price"]),
+#         category=row.get("category"),
+#         stock_available=int(row["stock_available"]),
+#         units_sold=int(row["units_sold"]),
+#         customer_rating=float(row["customer_rating"])
+#         if row.get("customer_rating")
+#         else None,
+#         demand_forecast=float(row["demand_forecast"])
+#         if row.get("demand_forecast")
+#         else None,
+#         optimized_price=float(row["optimized_price"])
+#         if row.get("optimized_price")
+#         else None,
+#     )
 
-    if existing:
-        return update_product(
-            db,
-            existing,
-            schemas.ProductUpdate(**payload.dict(exclude={"product_id"})),
-        )
+#     if existing:
+#         return update_product(
+#             db,
+#             existing,
+#             schemas.ProductUpdate(**payload.dict(exclude={"product_id"})),
+#         )
 
-    return create_product(db, payload)
+#     return create_product(db, payload)
 
 

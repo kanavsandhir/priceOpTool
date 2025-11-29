@@ -14,19 +14,16 @@ def predict_price(product: models.Product) -> float:
     if product.cost_price is None or product.selling_price is None:
         return product.selling_price or product.cost_price or 0.0
 
-    # Step 1 – base price with at least 20% margin
     base_price = max(product.selling_price, product.cost_price * 1.20)
 
-    # Step 2 – demand_forecast is approximated by units_sold
     units = product.units_sold or 0
 
-    # Step 3 – adjust base price using simple bands
     if units >= 200:
-        optimized = base_price * 1.10  # +10% for very high demand
+        optimized = base_price * 1.10  # +10% 
     elif units >= 100:
-        optimized = base_price * 1.05  # +5% for good demand
+        optimized = base_price * 1.05  # +5% 
     else:
-        optimized = base_price * 0.95  # -5% for weak demand
+        optimized = base_price * 0.95  # -5% 
 
     return round(optimized, 2)
 

@@ -36,11 +36,7 @@ def health_check():
 
 @app.post("/api/login", response_model=schemas.LoginResponse)
 def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
-    """
-    Simple login endpoint that validates email + password against the
-    existing public.\"user\" table. No tokens or roles – just a basic
-    credential check.
-    """
+
     sql = text(
         """
         SELECT user_id, user_name, password, user_role, email
@@ -56,6 +52,9 @@ def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
         )
 
     user_id, user_name, stored_password, user_role, email = row
+
+    if user_role is None:
+        raise HTTPException(status_code=403, detail="Role not assigned yet")
 
     if creds.password != stored_password:
         raise HTTPException(
@@ -183,26 +182,26 @@ def optimize_product_price(
     )
 
 
-@app.post("/api/ingest-from-csv")
-def ingest_from_csv(db: Session = Depends(get_db)):
-    """
-    Helper endpoint to quickly load data from the provided CSV into PostgreSQL.
-    """
-    import csv
-    from pathlib import Path
+# @app.post("/api/ingest-from-csv")
+# def ingest_from_csv(db: Session = Depends(get_db)):
+#     """
+#     Helper endpoint to quickly load data from the provided CSV into PostgreSQL.
+#     """
+#     import csv
+#     from pathlib import Path
 
-    csv_path = Path("product data.csv")
-    if not csv_path.exists():
-        raise HTTPException(status_code=404, detail="CSV file not found")
+#     csv_path = Path("product data.csv")
+#     if not csv_path.exists():
+#         raise HTTPException(status_code=404, detail="CSV file not found")
 
-    with csv_path.open(mode="r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        count = 0
-        for row in reader:
-            crud.upsert_product_from_row(db, row)
-            count += 1
+#     with csv_path.open(mode="r", encoding="utf-8") as f:
+#         reader = csv.DictReader(f)
+#         count = 0
+#         for row in reader:
+#             crud.upsert_product_from_row(db, row)
+#             count += 1
 
-    return {"rows_ingested": count}
+#     return {"rows_ingested": count}
 
 
 if __name__ == "__main__":

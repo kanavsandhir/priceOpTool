@@ -61,8 +61,16 @@ function App() {
   };
 
   const handleLogin = async (email, password) => {
-    const res = await login(email, password); // { user_id, user_name, email, user_role }
+    const res = await login(email, password); 
     setUser(res);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setView("home");
+    setProducts([]);
+    setSelected(null);
+    setError("");
   };
 
   const canManage =
@@ -73,7 +81,7 @@ function App() {
   }
 
   if (view === "home") {
-    return <LandingPage onSelectView={setView} />;
+    return <LandingPage onSelectView={setView} onLogout={handleLogout} />;
   }
 
   if (view === "manage") {
@@ -84,6 +92,7 @@ function App() {
         error={error}
         canManage={canManage}
         onBack={() => setView("home")}
+        onLogout={handleLogout}
         onSelectProduct={setSelected}
         onProductCreated={(p) => setProducts((prev) => [...prev, p])}
         onProductUpdated={(p) =>
@@ -109,6 +118,7 @@ function App() {
       loading={loading}
       error={error}
       onBack={() => setView("home")}
+      onLogout={handleLogout}
       onSelectProduct={setSelected}
       onOptimize={handleOptimize}
     />

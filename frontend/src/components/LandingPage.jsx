@@ -1,11 +1,20 @@
 import React from "react";
 
-function LandingPage({ onSelectView }) {
+function LandingPage({ onSelectView, onLogout }) {
   return (
     <div className="landing-root">
       <div className="landing-inner">
         <header className="landing-header">
-          <div className="landing-logo">BCG<span>X</span></div>
+          <button
+            type="button"
+            className="logout-icon-btn"
+            onClick={onLogout}
+          >
+            Logout
+          </button>
+          <div className="landing-logo">
+            BCG<span>X</span>
+          </div>
           <h1 className="landing-title">Price Optimization Tool</h1>
           <p className="landing-subtitle">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod

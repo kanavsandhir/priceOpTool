@@ -179,6 +179,7 @@ body {
 }
 
 .landing-header {
+  position: relative;
   text-align: center;
   margin-bottom: 2.5rem;
 }
@@ -388,6 +389,29 @@ body {
 .page-header {
   padding: 1.3rem 1.75rem 0.7rem 1.75rem;
   background: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logout-icon-btn {
+  background: transparent;
+  border-radius: 999px;
+  border: 1px solid #374151;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.logout-icon-btn:hover {
+  border-color: #22c55e;
+}
+
+.landing-header .logout-icon-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .toolbar-container {
